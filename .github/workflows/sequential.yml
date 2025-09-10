@@ -1,63 +1,34 @@
 name: Sequential PR Approvals
-
 on:
-
-  pull_request_review:
-
-    types: [submitted]
-
+ pull_request_review:
+   types: [submitted]
 jobs:
+ sequential-approval:
+   runs-on: ubuntu-latest
+   steps:
+     - name: Handle Logical Approver Approval
+       if: github.event.review.state == 'approved' && github.event.review.user.login == 'rajnaincy9'
+       run: |
+         echo "✅ Logical approver approved"
+         echo "➡️ Requesting review from Technical Approver (naincyraj123)..."
+         # Request review from technical approver
+         curl -s -X POST \
+           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+           -H "Accept: application/vnd.github.v3+json" \
+           "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers" \
+           -d '{"reviewers":["naincyraj123"]}'
+         # Notify Teams
+         curl -s -H "Content-Type: application/json" \
+           -d "{\"text\": \"✅ Logical approver *${{ github.event.review.user.login }}* approved PR: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url}}). \\n➡️ Review requested from *naincyraj123*.\"}" \
+           ${{ secrets.TEAMS_WEBHOOK_URL }}
+     - name: Handle Technical Approver Approval
+       if: github.event.review.state == 'approved' && github.event.review.user.login == 'naincyraj123'
+       run: |
+         echo "✅ Technical approver approved"
+         echo "➡️ Sending Teams notification that PR is fully approved"
+         # Notify Teams
+         curl -s -H "Content-Type: application/json" \
+           -d "{\"text\": \"🎉 PR: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url}}) has been fully approved ✅ by both approvers.\"}" \
+           ${{ secrets.TEAMS_WEBHOOK_URL }}
 
-  sequential-approval:
-
-    runs-on: ubuntu-latest
-
-    steps:
-
-      - name: Handle Logical Approver Approval
-
-        if: github.event.review.state == 'approved' && github.event.review.user.login == 'rajnaincy9'
-
-        run: |
-
-          echo "✅ Logical approver approved"
-
-          echo "➡️ Requesting review from Technical Approver (naincyraj123)..."
-
-          # Request review from technical approver
-
-          curl -s -X POST \
-
-               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-
-               -H "Accept: application/vnd.github.v3+json" \
-https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers \
-
-               -d "{\"reviewers\":[\"naincyraj123\"]}"
-
-          # Notify Teams
-
-          curl -s -H "Content-Type: application/json" \
-
-               -d "{\"text\": \"✅ Logical approver *${{ github.event.review.user.login }}* approved PR: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url}}). \n➡️ Review requested from *naincyraj123*.\"}" \
-
-               ${{ secrets.TEAMS_WEBHOOK_URL }}
-
-      - name: Handle Technical Approver Approval
-
-        if: github.event.review.state == 'approved' && github.event.review.user.login == 'naincyraj123'
-
-        run: |
-
-          echo "✅ Technical approver approved"
-
-          echo "➡️ Sending Teams notification that PR is fully approved"
-
-          # Notify Teams
-
-          curl -s -H "Content-Type: application/json" \
-
-               -d "{\"text\": \"🎉 PR: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url}}) has been fully approved ✅ by both approvers.\"}" \
-
-               ${{ secrets.TEAMS_WEBHOOK_URL }}
  
