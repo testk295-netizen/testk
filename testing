@@ -1,0 +1,9 @@
+git checkout -b test-pr
+
+echo "test" > demo.txt
+
+git add demoo.txt
+
+git commit -m "Test PR notification"
+
+git push origin test-pr
