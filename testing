@@ -1,8 +1,8 @@
 git checkout -b test-pr
-#testing the github actions
-echo "test" > demo1.txt
 
-git add demo1.txt
+echo "test" > demo.txt
+
+git add demoo.txt
 
 git commit -m "Test PR notification"
 
