@@ -1,8 +1,8 @@
 git checkout -b test-pr
 
-echo "test" > demo1.txt
+echo "test" > demo4.txt
 
-git add demo1.txt
+git add demo4.txt
 
 git commit -m "Test PR notification"
 
